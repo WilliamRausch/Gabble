@@ -1,6 +1,7 @@
 const express = require("express");
 const User = require("../models/index").User;
 const Post = require("../models/index").Post;
+const Like = require("../models/index").Like;
 const router = express.Router();
 const bcrypt = require("bcrypt");
 let username;
@@ -64,10 +65,11 @@ router.post("/signup", function(req, res) {
 
 router.get("/user", isAuthenticated, function(req, res) {
 	console.log(req.user.username);
-	Post.findAll().then(function (posts){
+	Post.findAll({ order: [['createdAt', 'DESC']]}).then(function (posts){
 		gabbles = posts;
 		//console.log(gabbles[1].body);
 	}).then(function(){
+
 		//console.log(gabbles[1].body);
 	
 	
@@ -126,4 +128,41 @@ else{
 }
 })
 });
+router.post("/user/likes/:id", isAuthenticated, function(req, res){
+  console.log("liking");
+  let newLike = {
+    user: req.user.username,
+    message: req.params.id
+  }
+  Post.findOne({ where: { id: req.params.id}}).then(function(post){
+    Post.update({
+      body: post.body,
+      user: post.user,
+      likes: post.likes + 1, 
+    },
+      {where: {id: post.id}
+      
+      
+    })
+  })
+  Like.create(newLike).then(function() {
+    console.log("HEEELOOOOOO");
+    res.redirect('/user/')
+  }).catch(function(error) {
+    console.log(error);
+    res.redirect('/user/');
+  });
+})
+router.get("/user/likes/:id", isAuthenticated, function(req, res){
+  Like.findAll({
+    where: {
+      message: req.params.id
+    }
+  }).then(function(likes){
+    console.log(likes);
+    res.render("likes", {likes});
+  })
+})
+
+
 module.exports = router;

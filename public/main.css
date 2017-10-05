@@ -1,0 +1,13 @@
+.gabble-container{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+.gabble{
+	display: flex;
+	flex-direction: column;
+
+}
+.timestamp{
+	color: ;
+}
